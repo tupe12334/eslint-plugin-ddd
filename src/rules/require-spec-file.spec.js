@@ -1,4 +1,4 @@
-import { RuleTester } from '@typescript-eslint/rule-tester';
+import { RuleTester } from 'eslint';
 import { describe, beforeEach, vi } from 'vitest';
 import { existsSync } from 'fs';
 import rule from './require-spec-file.js';
@@ -6,7 +6,10 @@ import rule from './require-spec-file.js';
 vi.mock('fs');
 
 const ruleTester = new RuleTester({
-  parser: '@typescript-eslint/parser',
+  languageOptions: {
+    ecmaVersion: 2022,
+    sourceType: 'module',
+  },
 });
 
 describe('require-spec-file', () => {
@@ -18,7 +21,7 @@ describe('require-spec-file', () => {
     valid: [
       {
         code: 'const x = 1;',
-        filename: '/project/src/user.ts',
+        filename: '/project/src/user.js',
         options: [],
         only: false,
         setup: () => {
@@ -27,19 +30,13 @@ describe('require-spec-file', () => {
       },
       {
         code: 'const x = 1;',
-        filename: '/project/src/user.spec.ts',
+        filename: '/project/src/user.spec.js',
         options: [],
         only: false,
       },
       {
         code: 'const x = 1;',
-        filename: '/project/src/index.ts',
-        options: [],
-        only: false,
-      },
-      {
-        code: 'const x = 1;',
-        filename: '/project/src/types.ts',
+        filename: '/project/src/index.js',
         options: [],
         only: false,
       },
@@ -48,13 +45,13 @@ describe('require-spec-file', () => {
     invalid: [
       {
         code: 'const x = 1;',
-        filename: '/project/src/user.ts',
+        filename: '/project/src/user.js',
         options: [],
         errors: [
           {
             messageId: 'missingSpecFile',
             data: {
-              specFile: 'user.spec.ts',
+              specFile: 'user.spec.js',
             },
           },
         ],
@@ -65,13 +62,13 @@ describe('require-spec-file', () => {
       },
       {
         code: 'export class UserService {}',
-        filename: '/project/src/services/user-service.ts',
+        filename: '/project/src/services/user-service.js',
         options: [],
         errors: [
           {
             messageId: 'missingSpecFile',
             data: {
-              specFile: 'user-service.spec.ts',
+              specFile: 'user-service.spec.js',
             },
           },
         ],

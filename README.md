@@ -1,6 +1,6 @@
 # eslint-plugin-ddd
 
-ESLint plugin to enforce Domain-Driven Design (DDD) principles in your TypeScript projects.
+ESLint plugin to enforce Domain-Driven Design (DDD) principles in your JavaScript projects.
 
 ## Installation
 
@@ -50,7 +50,7 @@ Or the strict configuration:
 
 ### `require-spec-file`
 
-Enforces that every `.ts` file has a corresponding `.spec.ts` file in the same directory.
+Enforces that every `.js` file has a corresponding `.spec.js` file in the same directory.
 
 **Rule Details**
 
@@ -58,17 +58,17 @@ This rule ensures test coverage by requiring spec files alongside implementation
 
 **Examples of incorrect code:**
 
-```typescript
-// src/user-service.ts exists
-// but src/user-service.spec.ts does NOT exist
+```javascript
+// src/user-service.js exists
+// but src/user-service.spec.js does NOT exist
 // ❌ ESLint will report an error
 ```
 
 **Examples of correct code:**
 
-```typescript
-// src/user-service.ts exists
-// AND src/user-service.spec.ts exists
+```javascript
+// src/user-service.js exists
+// AND src/user-service.spec.js exists
 // ✅ No error
 ```
 
@@ -79,11 +79,9 @@ This rule accepts an options object with the following properties:
 - `excludePatterns` (array of strings): Glob patterns to exclude from the spec file requirement
 
 **Default exclude patterns:**
-- `**/*.spec.ts` - Spec files themselves
-- `**/*.test.ts` - Test files
-- `**/index.ts` - Index files
-- `**/*.d.ts` - Type definition files
-- `**/types.ts` - Types files
+- `**/*.spec.js` - Spec files themselves
+- `**/*.test.js` - Test files
+- `**/index.js` - Index files
 
 **Example configuration:**
 
@@ -92,10 +90,10 @@ This rule accepts an options object with the following properties:
   "rules": {
     "ddd/require-spec-file": ["error", {
       "excludePatterns": [
-        "**/*.spec.ts",
-        "**/*.test.ts",
+        "**/*.spec.js",
+        "**/*.test.js",
         "**/config/**",
-        "**/*.config.ts"
+        "**/*.config.js"
       ]
     }]
   }
@@ -108,14 +106,14 @@ This rule accepts an options object with the following properties:
 # Install dependencies
 pnpm install
 
-# Build the plugin
-pnpm build
-
 # Run tests
 pnpm test
 
 # Run tests in watch mode
 pnpm test:watch
+
+# Lint the code
+pnpm lint
 ```
 
 ## License

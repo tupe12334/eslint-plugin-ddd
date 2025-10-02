@@ -1,12 +1,11 @@
 import { existsSync } from 'fs';
 import { parse as parsePath, join as joinPath } from 'path';
-import { RuleModule } from '../types.js';
 
-const rule: RuleModule = {
+const rule = {
   meta: {
     type: 'problem',
     docs: {
-      description: 'Require a .spec.ts file to exist alongside each .ts file',
+      description: 'Require a .spec.js file to exist alongside each .js file',
       category: 'Best Practices',
       recommended: true,
       url: '',
@@ -33,20 +32,18 @@ const rule: RuleModule = {
 
   create(context) {
     const options = context.options[0] || {};
-    const excludePatterns: string[] = options.excludePatterns || [
-      '**/*.spec.ts',
-      '**/*.test.ts',
-      '**/index.ts',
-      '**/*.d.ts',
-      '**/types.ts',
+    const excludePatterns = options.excludePatterns || [
+      '**/*.spec.js',
+      '**/*.test.js',
+      '**/index.js',
     ];
 
     return {
       Program(node) {
         const filename = context.getFilename ? context.getFilename() : context.filename;
 
-        // Skip if not a TypeScript file
-        if (!filename.endsWith('.ts')) {
+        // Skip if not a JavaScript file
+        if (!filename.endsWith('.js')) {
           return;
         }
 
@@ -70,7 +67,7 @@ const rule: RuleModule = {
 
         // Determine expected spec file path
         const parsed = parsePath(filename);
-        const specFileName = `${parsed.name}.spec.ts`;
+        const specFileName = `${parsed.name}.spec.js`;
         const specFilePath = joinPath(parsed.dir, specFileName);
 
         // Check if spec file exists

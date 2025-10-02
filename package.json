@@ -1,15 +1,13 @@
 {
   "name": "eslint-plugin-ddd",
   "version": "0.1.0",
+  "type": "module",
   "description": "ESLint plugin to enforce Domain-Driven Design principles",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "main": "src/index.js",
   "scripts": {
-    "build": "tsc",
     "test": "vitest run",
     "test:watch": "vitest",
-    "lint": "eslint .",
-    "prepublishOnly": "pnpm build"
+    "lint": "eslint ."
   },
   "keywords": [
     "eslint",
@@ -23,15 +21,9 @@
   "author": "",
   "license": "MIT",
   "devDependencies": {
-    "@types/eslint": "^9.0.0",
-    "@types/node": "^20.0.0",
-    "@typescript-eslint/eslint-plugin": "^8.0.0",
-    "@typescript-eslint/parser": "^8.0.0",
-    "@typescript-eslint/rule-tester": "^8.0.0",
     "@vitest/ui": "^1.0.0",
     "eslint": "^9.0.0",
     "eslint-config-agent": "^1.0.0",
-    "typescript": "^5.3.0",
     "vitest": "^1.0.0"
   },
   "peerDependencies": {
