@@ -61,7 +61,8 @@ const rule = {
         const shouldExclude = excludePatterns.some((pattern) => {
           // Simple pattern matching for common cases
           if (pattern.includes('**/*.')) {
-            const extension = pattern.split('**/').pop();
+            // Handle patterns like **/*.spec.js
+            const extension = pattern.split('**/').pop().replace('*', '');
             return filename.endsWith(extension || '');
           }
           if (pattern.includes('**/')) {
