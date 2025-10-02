@@ -13,7 +13,11 @@
     "test": "vitest run --run",
     "test:watch": "vitest",
     "lint": "eslint .",
-    "release": "release-it"
+    "ci": "pnpm lint && pnpm test",
+    "release": "release-it",
+    "release:patch": "release-it patch --ci",
+    "release:minor": "release-it minor --ci",
+    "release:major": "release-it major --ci"
   },
   "keywords": [
     "eslint",
