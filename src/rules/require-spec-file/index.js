@@ -126,7 +126,7 @@ const rule = {
         const specFilePath = joinPath(parsed.dir, specFileName);
 
         // Check if spec file exists
-        // eslint-disable-next-line security/detect-non-literal-fs-filename
+         
         const specFileExists = existsSync(specFilePath);
 
         if (!specFileExists) {

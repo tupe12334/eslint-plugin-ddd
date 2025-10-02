@@ -84,7 +84,7 @@ const rule = {
         const storybookFilePath = joinPath(parsed.dir, storybookFileName);
 
         // Check if Storybook file exists
-        // eslint-disable-next-line security/detect-non-literal-fs-filename
+         
         const storybookFileExists = existsSync(storybookFilePath);
 
         if (!storybookFileExists) {

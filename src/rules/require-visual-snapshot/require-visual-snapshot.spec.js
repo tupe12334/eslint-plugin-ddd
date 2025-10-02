@@ -1,7 +1,7 @@
 import { RuleTester } from 'eslint';
 import { describe, it, beforeEach, vi } from 'vitest';
 import { existsSync, readdirSync, statSync } from 'fs';
-import rule from './require-visual-snapshot.js';
+import rule from './index.js';
 
 vi.mock('fs');
 

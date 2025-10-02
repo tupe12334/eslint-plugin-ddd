@@ -92,14 +92,14 @@ const rule = {
         }
 
         // Check if directory exists and read its contents
-        // eslint-disable-next-line security/detect-non-literal-fs-filename
+         
         if (!existsSync(dir)) {
           return;
         }
 
         let files;
         try {
-          // eslint-disable-next-line security/detect-non-literal-fs-filename
+           
           files = readdirSync(dir);
         } catch {
           return;
@@ -108,7 +108,7 @@ const rule = {
         // Filter to only implementation files (not spec, test, or index files)
         const implementationFiles = files.filter((file) => {
           const filePath = joinPath(dir, file);
-          // eslint-disable-next-line security/detect-non-literal-fs-filename
+           
           const isFile = statSync(filePath).isFile();
           if (!isFile) return false;
 
@@ -129,9 +129,9 @@ const rule = {
         const indexJs = joinPath(dir, 'index.js');
         const indexTs = joinPath(dir, 'index.ts');
 
-        // eslint-disable-next-line security/detect-non-literal-fs-filename
+         
         const hasIndexJs = existsSync(indexJs);
-        // eslint-disable-next-line security/detect-non-literal-fs-filename
+         
         const hasIndexTs = existsSync(indexTs);
 
         if (!hasIndexJs && !hasIndexTs) {

@@ -1,7 +1,7 @@
-import requireSpecFile from './rules/require-spec-file.js';
-import requireIndexFile from './rules/require-index-file.js';
-import requireStorybookFile from './rules/require-storybook-file.js';
-import requireVisualSnapshot from './rules/require-visual-snapshot.js';
+import requireSpecFile from './rules/require-spec-file/index.js';
+import requireIndexFile from './rules/require-index-file/index.js';
+import requireStorybookFile from './rules/require-storybook-file/index.js';
+import requireVisualSnapshot from './rules/require-visual-snapshot/index.js';
 
 const plugin = {
   rules: {

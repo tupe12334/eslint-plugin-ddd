@@ -86,7 +86,7 @@ const rule = {
         const specFilePath = joinPath(parsed.dir, specFileName);
 
         // Check if spec file exists
-        // eslint-disable-next-line security/detect-non-literal-fs-filename
+         
         const specFileExists = existsSync(specFilePath);
 
         if (!specFileExists) {
@@ -105,7 +105,7 @@ const rule = {
         const snapshotFolderPath = joinPath(parsed.dir, snapshotFolderName);
 
         // Check if snapshot folder exists
-        // eslint-disable-next-line security/detect-non-literal-fs-filename
+         
         const snapshotFolderExists = existsSync(snapshotFolderPath);
 
         if (!snapshotFolderExists) {
@@ -122,7 +122,7 @@ const rule = {
         // Check if snapshot folder is actually a directory
         let isDirectory = false;
         try {
-          // eslint-disable-next-line security/detect-non-literal-fs-filename
+           
           isDirectory = statSync(snapshotFolderPath).isDirectory();
         } catch {
           context.report({
@@ -149,7 +149,7 @@ const rule = {
         // Check if folder contains at least one PNG file
         let files = [];
         try {
-          // eslint-disable-next-line security/detect-non-literal-fs-filename
+           
           files = readdirSync(snapshotFolderPath);
         } catch {
           context.report({
