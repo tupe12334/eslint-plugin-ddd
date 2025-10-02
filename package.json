@@ -4,6 +4,11 @@
   "type": "module",
   "description": "ESLint plugin to enforce Domain-Driven Design principles",
   "main": "src/index.js",
+  "files": [
+    "src/**/*.js",
+    "!src/**/*.spec.js",
+    "!src/**/examples/**"
+  ],
   "scripts": {
     "test": "vitest run --run",
     "test:watch": "vitest",
