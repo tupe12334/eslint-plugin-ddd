@@ -137,6 +137,35 @@ pnpm test:watch
 pnpm lint
 ```
 
+## Releasing
+
+This project uses [release-it](https://github.com/release-it/release-it) for automated releases.
+
+### Setup
+
+1. Copy the `.env.example` file to `.env`:
+   ```bash
+   cp .env.example .env
+   ```
+
+2. Add your tokens to the `.env` file:
+   - `GITHUB_TOKEN`: GitHub Personal Access Token ([generate here](https://github.com/settings/tokens))
+   - `NPM_TOKEN`: NPM Access Token ([generate here](https://www.npmjs.com/settings/tokens))
+
+### Create a Release
+
+```bash
+pnpm release
+```
+
+This will:
+- Run linting and tests
+- Bump the version
+- Create a git commit and tag
+- Push to GitHub
+- Create a GitHub release
+- Publish to npm
+
 ## License
 
 MIT
