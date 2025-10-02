@@ -1,5 +1,5 @@
 export class UserService {
-  getUser(id: string) {
+  getUser(id) {
     return { id, name: 'John Doe' };
   }
 }

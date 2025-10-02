@@ -2,13 +2,15 @@
 
 ## Valid Examples
 
-Files in the `valid/` directory demonstrate correct usage where each file has a corresponding spec file next to it.
+Files in the `valid/` directory demonstrate correct usage.
 
-**JavaScript:**
+**Files with logic + spec files:**
 - ✅ `user-service.js` + `user-service.spec.js`
-
-**TypeScript:**
 - ✅ `order-service.ts` + `order-service.spec.ts`
+
+**Files without logic (no spec required):**
+- ✅ `constants.js` - Only contains constants
+- ✅ `types.ts` - Only contains type definitions
 
 ## Invalid Examples
 

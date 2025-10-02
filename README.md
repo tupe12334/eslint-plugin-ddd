@@ -50,11 +50,23 @@ Or the strict configuration:
 
 ### `require-spec-file`
 
-Enforces that every `.js` or `.ts` file has a corresponding `.spec.js` or `.spec.ts` file in the same directory.
+Enforces that every `.js` or `.ts` file **containing logic** has a corresponding `.spec.js` or `.spec.ts` file in the same directory.
 
 **Rule Details**
 
-This rule ensures test coverage by requiring spec files alongside implementation files, promoting test-driven development and maintaining test organization. The rule automatically matches the file extension:
+This rule ensures test coverage by requiring spec files alongside implementation files that contain logic, promoting test-driven development and maintaining test organization.
+
+**What counts as "logic":**
+- Functions with implementations (not just type signatures)
+- Classes with method implementations
+- Executable code
+
+**Files automatically excluded (no logic):**
+- Type-only files (interfaces, types, enums)
+- Constant-only files
+- Simple re-export files
+
+The rule automatically matches the file extension:
 - `.js` files require `.spec.js` files
 - `.ts` files require `.spec.ts` files
 
@@ -75,15 +87,31 @@ This rule ensures test coverage by requiring spec files alongside implementation
 **Examples of correct code:**
 
 ```javascript
-// src/user-service.js exists
+// src/user-service.js exists with logic
 // AND src/user-service.spec.js exists
 // ✅ No error
 ```
 
 ```typescript
-// src/product-repository.ts exists
+// src/product-repository.ts exists with logic
 // AND src/product-repository.spec.ts exists
 // ✅ No error
+```
+
+```javascript
+// src/constants.js exists with ONLY constants (no logic)
+// ✅ No spec file required
+export const API_URL = 'https://api.example.com';
+export const MAX_RETRIES = 3;
+```
+
+```typescript
+// src/types.ts exists with ONLY types (no logic)
+// ✅ No spec file required
+export interface User {
+  id: string;
+  name: string;
+}
 ```
 
 **Options**

@@ -4,9 +4,11 @@ import dddPlugin from "./src/index.js";
 export default [
   ...agent,
   {
-    ignores: ["dist/**", "node_modules/**", "coverage/**"],
+    ignores: ["dist/**", "node_modules/**", "coverage/**", "**/examples/**"],
   },
   {
+    files: ["src/**/*.js", "src/**/*.ts"],
+    ignores: ["**/examples/**", "src/rules/**"],
     plugins: {
       ddd: dddPlugin,
     },

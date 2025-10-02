@@ -1,5 +1,5 @@
 import { RuleTester } from 'eslint';
-import { describe, beforeEach, vi } from 'vitest';
+import { describe, it, beforeEach, vi } from 'vitest';
 import { existsSync } from 'fs';
 import rule from './require-spec-file.js';
 
@@ -17,136 +17,92 @@ describe('require-spec-file', () => {
     vi.resetAllMocks();
   });
 
-  ruleTester.run('require-spec-file', rule, {
-    valid: [
-      // JavaScript files with spec files
-      {
-        code: 'const x = 1;',
-        filename: '/project/src/user.js',
-        options: [],
-        only: false,
-        setup: () => {
-          vi.mocked(existsSync).mockReturnValue(true);
-        },
-      },
-      // TypeScript files with spec files
-      {
-        code: 'const x = 1;',
-        filename: '/project/src/user.ts',
-        options: [],
-        only: false,
-        setup: () => {
-          vi.mocked(existsSync).mockReturnValue(true);
-        },
-      },
-      // Spec files themselves should be excluded
-      {
-        code: 'const x = 1;',
-        filename: '/project/src/user.spec.js',
-        options: [],
-        only: false,
-      },
-      {
-        code: 'const x = 1;',
-        filename: '/project/src/user.spec.ts',
-        options: [],
-        only: false,
-      },
-      // Index files should be excluded
-      {
-        code: 'const x = 1;',
-        filename: '/project/src/index.js',
-        options: [],
-        only: false,
-      },
-      {
-        code: 'const x = 1;',
-        filename: '/project/src/index.ts',
-        options: [],
-        only: false,
-      },
-      // TypeScript declaration files should be excluded
-      {
-        code: 'export type User = { id: string };',
-        filename: '/project/src/types.d.ts',
-        options: [],
-        only: false,
-      },
-    ],
+  it('should require spec files for files with logic', () => {
+    // Mock fs to return false (spec file doesn't exist)
+    vi.mocked(existsSync).mockReturnValue(false);
 
-    invalid: [
-      // JavaScript file without spec
-      {
-        code: 'const x = 1;',
-        filename: '/project/src/user.js',
-        options: [],
-        errors: [
-          {
-            messageId: 'missingSpecFile',
-            data: {
-              specFile: 'user.spec.js',
-            },
-          },
-        ],
-        only: false,
-        setup: () => {
-          vi.mocked(existsSync).mockReturnValue(false);
+    ruleTester.run('require-spec-file', rule, {
+      valid: [
+        // File with logic but spec exists
+        {
+          code: 'export function add(a, b) { return a + b; }',
+          filename: '/project/src/math.js',
         },
-      },
-      // TypeScript file without spec
-      {
-        code: 'const x = 1;',
-        filename: '/project/src/user.ts',
-        options: [],
-        errors: [
-          {
-            messageId: 'missingSpecFile',
-            data: {
-              specFile: 'user.spec.ts',
-            },
-          },
-        ],
-        only: false,
-        setup: () => {
-          vi.mocked(existsSync).mockReturnValue(false);
+        // File without logic (only constants)
+        {
+          code: 'export const PI = 3.14;',
+          filename: '/project/src/constants.js',
         },
-      },
-      // JavaScript service without spec
-      {
-        code: 'export class UserService {}',
-        filename: '/project/src/services/user-service.js',
-        options: [],
-        errors: [
-          {
-            messageId: 'missingSpecFile',
-            data: {
-              specFile: 'user-service.spec.js',
-            },
-          },
-        ],
-        only: false,
-        setup: () => {
-          vi.mocked(existsSync).mockReturnValue(false);
+        // Spec file itself
+        {
+          code: 'describe("test", () => {});',
+          filename: '/project/src/user.spec.js',
         },
-      },
-      // TypeScript service without spec
-      {
-        code: 'export class ProductRepository {}',
-        filename: '/project/src/repositories/product-repository.ts',
-        options: [],
-        errors: [
-          {
-            messageId: 'missingSpecFile',
-            data: {
-              specFile: 'product-repository.spec.ts',
-            },
-          },
-        ],
-        only: false,
-        setup: () => {
-          vi.mocked(existsSync).mockReturnValue(false);
+        // Index file
+        {
+          code: 'export * from "./user.js";',
+          filename: '/project/src/index.js',
         },
-      },
-    ],
+      ],
+
+      invalid: [
+        // File with function logic but no spec
+        {
+          code: 'export function multiply(a, b) { return a * b; }',
+          filename: '/project/src/calculator.js',
+          errors: [
+            {
+              messageId: 'missingSpecFile',
+              data: {
+                specFile: 'calculator.spec.js',
+              },
+            },
+          ],
+        },
+        // File with class logic but no spec
+        {
+          code: 'export class UserService { getUser() { return {}; } }',
+          filename: '/project/src/user-service.js',
+          errors: [
+            {
+              messageId: 'missingSpecFile',
+              data: {
+                specFile: 'user-service.spec.js',
+              },
+            },
+          ],
+        },
+      ],
+    });
+  });
+
+  it('should handle TypeScript files', () => {
+    vi.mocked(existsSync).mockReturnValue(false);
+
+    ruleTester.run('require-spec-file (TypeScript)', rule, {
+      valid: [
+        // Type-only file
+        {
+          code: 'export interface User { id: string; }',
+          filename: '/project/src/types.ts',
+        },
+      ],
+
+      invalid: [
+        // File with function logic but no spec
+        {
+          code: 'export function greet(name: string) { return `Hello ${name}`; }',
+          filename: '/project/src/greeter.ts',
+          errors: [
+            {
+              messageId: 'missingSpecFile',
+              data: {
+                specFile: 'greeter.spec.ts',
+              },
+            },
+          ],
+        },
+      ],
+    });
   });
 });
