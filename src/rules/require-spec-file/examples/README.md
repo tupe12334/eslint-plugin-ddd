@@ -1,31 +1,45 @@
-# Examples for `require-spec-file` Rule
+## require-spec-file Examples
 
 ## Valid Examples
 
-Files in the `valid/` directory demonstrate correct usage.
-
-**Files with logic + spec files:**
-- ✅ `user-service.js` + `user-service.spec.js`
-- ✅ `order-service.ts` + `order-service.spec.ts`
+**Files with logic and matching spec files:**
+- ✅ `valid/user-service.js` + `valid/user-service.spec.js` - Implementation with spec
+- ✅ `valid/order-service.ts` + `valid/order-service.spec.ts` - TypeScript implementation with spec
 
 **Files without logic (no spec required):**
-- ✅ `constants.js` - Only contains constants
-- ✅ `types.ts` - Only contains type definitions
+- ✅ `valid/constants.js` - Only contains constants
+- ✅ `valid/types.ts` - Only contains type definitions
 
 ## Invalid Examples
 
-Files in the `invalid/` directory demonstrate violations where files are missing their corresponding spec files.
+**Implementation files without spec files:**
+- ❌ `invalid/product-repository.js` - Missing `product-repository.spec.js`
+- ❌ `invalid/payment-gateway.ts` - Missing `payment-gateway.spec.ts`
 
-**JavaScript:**
-- ❌ `product-repository.js` (missing `product-repository.spec.js`)
+**Spec files without implementation files:**
+- ❌ `invalid/orphan-spec.spec.js` - Missing `orphan-spec.js`
 
-**TypeScript:**
-- ❌ `payment-gateway.ts` (missing `payment-gateway.spec.ts`)
+**Invalid spec file names:**
+- ❌ `invalid/index.spec.js` - Spec files cannot be named `index.spec.*`
 
-## Excluded Files
+## Rule Behavior
 
-These patterns are excluded by default and don't require spec files:
-- `**/*.spec.js` / `**/*.spec.ts` - Test files themselves
-- `**/*.test.js` / `**/*.test.ts` - Alternative test files
-- `**/index.js` / `**/index.ts` - Index/barrel files
-- `**/*.d.ts` - TypeScript declaration files
+### For Implementation Files:
+Files with logic (functions, classes with methods) require a matching spec file:
+- `user.js` → requires `user.spec.js`
+- `product.ts` → requires `product.spec.ts`
+
+Files without logic (only constants, types) don't require spec files.
+
+### For Spec Files:
+Spec files must have a corresponding implementation file with the same base name:
+- `user.spec.js` → requires `user.js`
+- `product.spec.ts` → requires `product.ts`
+
+**Forbidden**: Spec files cannot be named `index.spec.*` or `index.test.*` because they don't follow the naming convention of matching an implementation file.
+
+### Why This Matters:
+- **Bidirectional validation**: Ensures specs and implementations stay in sync
+- **Clear naming**: Each spec file clearly maps to its implementation
+- **No orphaned specs**: Prevents spec files without corresponding code
+- **No index specs**: Index files are for re-exports, not logic requiring tests

@@ -1,5 +1,4 @@
 import requireSpecFile from './rules/require-spec-file/index.js';
-import requireIndexFile from './rules/require-index-file/index.js';
 import requireStorybookFile from './rules/require-storybook-file/index.js';
 import requireVisualSnapshot from './rules/require-visual-snapshot/index.js';
 import noLogicInIndex from './rules/no-logic-in-index/index.js';
@@ -7,7 +6,6 @@ import noLogicInIndex from './rules/no-logic-in-index/index.js';
 const plugin = {
   rules: {
     'require-spec-file': requireSpecFile,
-    'require-index-file': requireIndexFile,
     'require-storybook-file': requireStorybookFile,
     'require-visual-snapshot': requireVisualSnapshot,
     'no-logic-in-index': noLogicInIndex,
@@ -17,7 +15,6 @@ const plugin = {
       plugins: ['ddd'],
       rules: {
         'ddd/require-spec-file': 'error',
-        'ddd/require-index-file': 'error',
         'ddd/require-storybook-file': 'error',
         'ddd/require-visual-snapshot': 'error',
         'ddd/no-logic-in-index': 'error',
@@ -34,15 +31,6 @@ const plugin = {
             '**/*.test.ts',
             '**/*.d.ts',
           ],
-        }],
-        'ddd/require-index-file': ['error', {
-          excludePatterns: [
-            '**/examples/**',
-            '**/test/**',
-            '**/tests/**',
-            '**/__tests__/**',
-          ],
-          minFiles: 2,
         }],
         'ddd/require-storybook-file': ['error', {
           excludePatterns: [

@@ -23,20 +23,10 @@ describe('require-spec-file', () => {
 
     ruleTester.run('require-spec-file', rule, {
       valid: [
-        // File with logic but spec exists
-        {
-          code: 'export function add(a, b) { return a + b; }',
-          filename: '/project/src/math.js',
-        },
         // File without logic (only constants)
         {
           code: 'export const PI = 3.14;',
           filename: '/project/src/constants.js',
-        },
-        // Spec file itself
-        {
-          code: 'describe("test", () => {});',
-          filename: '/project/src/user.spec.js',
         },
         // Index file
         {
@@ -44,7 +34,6 @@ describe('require-spec-file', () => {
           filename: '/project/src/index.js',
         },
       ],
-
       invalid: [
         // File with function logic but no spec
         {
@@ -87,7 +76,6 @@ describe('require-spec-file', () => {
           filename: '/project/src/types.ts',
         },
       ],
-
       invalid: [
         // File with function logic but no spec
         {
@@ -103,6 +91,117 @@ describe('require-spec-file', () => {
           ],
         },
       ],
+    });
+  });
+
+  it('should validate spec files have corresponding implementation files', () => {
+    vi.mocked(existsSync).mockReturnValue(false);
+
+    ruleTester.run('require-spec-file (spec validation)', rule, {
+      valid: [],
+      invalid: [
+        // Spec file without implementation file
+        {
+          code: 'describe("User", () => {});',
+          filename: '/project/src/user.spec.js',
+          errors: [
+            {
+              messageId: 'missingImplementationFile',
+              data: {
+                specFile: 'user.spec.js',
+                implFile: 'user.js',
+              },
+            },
+          ],
+        },
+        // TypeScript spec file without implementation
+        {
+          code: 'describe("Product", () => {});',
+          filename: '/project/src/product.spec.ts',
+          errors: [
+            {
+              messageId: 'missingImplementationFile',
+              data: {
+                specFile: 'product.spec.ts',
+                implFile: 'product.ts',
+              },
+            },
+          ],
+        },
+      ],
+    });
+  });
+
+  it('should disallow index.spec.* files', () => {
+    vi.mocked(existsSync).mockReturnValue(true);
+
+    ruleTester.run('require-spec-file (no index.spec)', rule, {
+      valid: [],
+      invalid: [
+        {
+          code: 'describe("Index", () => {});',
+          filename: '/project/src/index.spec.js',
+          errors: [
+            {
+              messageId: 'indexSpecNotAllowed',
+            },
+          ],
+        },
+        {
+          code: 'describe("Index", () => {});',
+          filename: '/project/src/index.spec.ts',
+          errors: [
+            {
+              messageId: 'indexSpecNotAllowed',
+            },
+          ],
+        },
+        {
+          code: 'test("Index", () => {});',
+          filename: '/project/src/index.test.js',
+          errors: [
+            {
+              messageId: 'indexSpecNotAllowed',
+            },
+          ],
+        },
+      ],
+    });
+  });
+
+  it('should allow spec files when implementation exists', () => {
+    vi.mocked(existsSync).mockReturnValue(true);
+
+    ruleTester.run('require-spec-file (spec with impl)', rule, {
+      valid: [
+        {
+          code: 'describe("User", () => {});',
+          filename: '/project/src/user.spec.js',
+        },
+        {
+          code: 'describe("Product", () => {});',
+          filename: '/project/src/product.spec.ts',
+        },
+      ],
+      invalid: [],
+    });
+  });
+
+  it('should allow implementation files when spec exists', () => {
+    vi.mocked(existsSync).mockReturnValue(true);
+
+    ruleTester.run('require-spec-file (impl with spec)', rule, {
+      valid: [
+        {
+          code: 'export function add(a, b) { return a + b; }',
+          filename: '/project/src/math.js',
+        },
+        {
+          code: 'export class UserService { getUser() { return {}; } }',
+          filename: '/project/src/user-service.ts',
+        },
+      ],
+      invalid: [],
     });
   });
 });
