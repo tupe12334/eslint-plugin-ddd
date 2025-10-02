@@ -5,7 +5,7 @@ const rule = {
   meta: {
     type: 'problem',
     docs: {
-      description: 'Require a .spec.js file to exist alongside each .js file',
+      description: 'Require a spec file to exist alongside each JS/TS file',
       category: 'Best Practices',
       recommended: true,
       url: '',
@@ -34,16 +34,26 @@ const rule = {
     const options = context.options[0] || {};
     const excludePatterns = options.excludePatterns || [
       '**/*.spec.js',
+      '**/*.spec.ts',
       '**/*.test.js',
+      '**/*.test.ts',
       '**/index.js',
+      '**/index.ts',
+      '**/*.d.ts',
     ];
 
     return {
       Program(node) {
         const filename = context.getFilename ? context.getFilename() : context.filename;
 
-        // Skip if not a JavaScript file
-        if (!filename.endsWith('.js')) {
+        // Determine file extension
+        let fileExtension = null;
+        if (filename.endsWith('.js')) {
+          fileExtension = '.js';
+        } else if (filename.endsWith('.ts') && !filename.endsWith('.d.ts')) {
+          fileExtension = '.ts';
+        } else {
+          // Skip files that are not .js or .ts (or are .d.ts)
           return;
         }
 
@@ -65,9 +75,9 @@ const rule = {
           return;
         }
 
-        // Determine expected spec file path
+        // Determine expected spec file path based on file extension
         const parsed = parsePath(filename);
-        const specFileName = `${parsed.name}.spec.js`;
+        const specFileName = `${parsed.name}.spec${fileExtension}`;
         const specFilePath = joinPath(parsed.dir, specFileName);
 
         // Check if spec file exists

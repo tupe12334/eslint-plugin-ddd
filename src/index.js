@@ -17,7 +17,10 @@ const plugin = {
         'ddd/require-spec-file': ['error', {
           excludePatterns: [
             '**/*.spec.js',
+            '**/*.spec.ts',
             '**/*.test.js',
+            '**/*.test.ts',
+            '**/*.d.ts',
           ],
         }],
       },
