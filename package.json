@@ -5,7 +5,7 @@
   "description": "ESLint plugin to enforce Domain-Driven Design principles",
   "main": "src/index.js",
   "scripts": {
-    "test": "vitest run",
+    "test": "vitest run --run",
     "test:watch": "vitest",
     "lint": "eslint ."
   },
