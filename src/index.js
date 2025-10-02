@@ -1,12 +1,14 @@
 import requireSpecFile from './rules/require-spec-file.js';
 import requireIndexFile from './rules/require-index-file.js';
 import requireStorybookFile from './rules/require-storybook-file.js';
+import requireVisualSnapshot from './rules/require-visual-snapshot.js';
 
 const plugin = {
   rules: {
     'require-spec-file': requireSpecFile,
     'require-index-file': requireIndexFile,
     'require-storybook-file': requireStorybookFile,
+    'require-visual-snapshot': requireVisualSnapshot,
   },
   configs: {
     recommended: {
@@ -15,6 +17,7 @@ const plugin = {
         'ddd/require-spec-file': 'error',
         'ddd/require-index-file': 'error',
         'ddd/require-storybook-file': 'error',
+        'ddd/require-visual-snapshot': 'error',
       },
     },
     strict: {
@@ -50,6 +53,16 @@ const plugin = {
             '**/*.spec.tsx',
             '**/*.test.jsx',
             '**/*.test.tsx',
+          ],
+        }],
+        'ddd/require-visual-snapshot': ['error', {
+          excludePatterns: [
+            '**/*.spec.jsx',
+            '**/*.spec.tsx',
+            '**/*.test.jsx',
+            '**/*.test.tsx',
+            '**/index.jsx',
+            '**/index.tsx',
           ],
         }],
       },
