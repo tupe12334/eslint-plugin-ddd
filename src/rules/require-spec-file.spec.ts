@@ -1,7 +1,7 @@
 import { RuleTester } from '@typescript-eslint/rule-tester';
 import { describe, beforeEach, vi } from 'vitest';
-import * as fs from 'fs';
-import rule from '../../src/rules/require-spec-file';
+import { existsSync } from 'fs';
+import rule from './require-spec-file.js';
 
 vi.mock('fs');
 
@@ -22,7 +22,7 @@ describe('require-spec-file', () => {
         options: [],
         only: false,
         setup: () => {
-          vi.mocked(fs.existsSync).mockReturnValue(true);
+          vi.mocked(existsSync).mockReturnValue(true);
         },
       },
       {
@@ -60,7 +60,7 @@ describe('require-spec-file', () => {
         ],
         only: false,
         setup: () => {
-          vi.mocked(fs.existsSync).mockReturnValue(false);
+          vi.mocked(existsSync).mockReturnValue(false);
         },
       },
       {
@@ -77,7 +77,7 @@ describe('require-spec-file', () => {
         ],
         only: false,
         setup: () => {
-          vi.mocked(fs.existsSync).mockReturnValue(false);
+          vi.mocked(existsSync).mockReturnValue(false);
         },
       },
     ],

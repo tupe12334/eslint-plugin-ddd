@@ -1,4 +1,4 @@
-import requireSpecFile from './rules/require-spec-file';
+import requireSpecFile from './rules/require-spec-file.js';
 
 const plugin = {
   rules: {
@@ -26,4 +26,4 @@ const plugin = {
   },
 };
 
-export = plugin;
+export default plugin;

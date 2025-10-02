@@ -1,6 +1,6 @@
-import * as fs from 'fs';
-import * as path from 'path';
-import { RuleModule } from '../types';
+import { existsSync } from 'fs';
+import { parse as parsePath, join as joinPath } from 'path';
+import { RuleModule } from '../types.js';
 
 const rule: RuleModule = {
   meta: {
@@ -9,7 +9,7 @@ const rule: RuleModule = {
       description: 'Require a .spec.ts file to exist alongside each .ts file',
       category: 'Best Practices',
       recommended: true,
-      url: 'https://github.com/tupe12334/eslint-plugin-ddd/blob/main/docs/rules/require-spec-file.md',
+      url: '',
     },
     messages: {
       missingSpecFile: 'Missing spec file: "{{specFile}}" should exist alongside this file.',
@@ -43,22 +43,25 @@ const rule: RuleModule = {
 
     return {
       Program(node) {
-        const filename = context.getFilename?.() || context.filename;
+        const filename = context.getFilename ? context.getFilename() : context.filename;
 
         // Skip if not a TypeScript file
         if (!filename.endsWith('.ts')) {
           return;
         }
 
-        // Check if file matches any exclude pattern
+        // Check if file matches any exclude pattern using simple string matching
         const shouldExclude = excludePatterns.some((pattern) => {
-          const regex = new RegExp(
-            pattern
-              .replace(/\*\*/g, '.*')
-              .replace(/\*/g, '[^/]*')
-              .replace(/\?/g, '.')
-          );
-          return regex.test(filename);
+          // Simple pattern matching for common cases
+          if (pattern.includes('**/*.')) {
+            const extension = pattern.split('**/').pop();
+            return filename.endsWith(extension || '');
+          }
+          if (pattern.includes('**/')) {
+            const suffix = pattern.replace('**/', '');
+            return filename.endsWith(`/${suffix}`) || filename.endsWith(`\\${suffix}`);
+          }
+          return filename.includes(pattern);
         });
 
         if (shouldExclude) {
@@ -66,12 +69,15 @@ const rule: RuleModule = {
         }
 
         // Determine expected spec file path
-        const parsedPath = path.parse(filename);
-        const specFileName = `${parsedPath.name}.spec.ts`;
-        const specFilePath = path.join(parsedPath.dir, specFileName);
+        const parsed = parsePath(filename);
+        const specFileName = `${parsed.name}.spec.ts`;
+        const specFilePath = joinPath(parsed.dir, specFileName);
 
         // Check if spec file exists
-        if (!fs.existsSync(specFilePath)) {
+        // eslint-disable-next-line security/detect-non-literal-fs-filename
+        const specFileExists = existsSync(specFilePath);
+
+        if (!specFileExists) {
           context.report({
             node,
             messageId: 'missingSpecFile',
