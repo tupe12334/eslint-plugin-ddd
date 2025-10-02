@@ -8,7 +8,7 @@ export default [
   },
   {
     files: ["src/**/*.js", "src/**/*.ts"],
-    ignores: ["**/examples/**", "src/rules/**"],
+    ignores: ["**/examples/**"],
     plugins: {
       ddd: dddPlugin,
     },

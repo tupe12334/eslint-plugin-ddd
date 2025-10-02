@@ -1,7 +1,79 @@
-/* eslint-disable max-lines */
-/* eslint-disable max-lines-per-function */
 import { existsSync, readdirSync, statSync } from 'fs';
 import { parse as parsePath, join as joinPath } from 'path';
+
+const checkExcludePatterns = (filename, excludePatterns) => {
+  return excludePatterns.some((pattern) => {
+    if (pattern.includes('**/*.')) {
+      const extension = pattern.split('**/').pop().replace('*', '');
+      return filename.endsWith(extension || '');
+    }
+    if (pattern.includes('**/')) {
+      const suffix = pattern.replace('**/', '');
+      return filename.endsWith(`/${suffix}`) || filename.endsWith(`\\${suffix}`);
+    }
+    return filename.includes(pattern);
+  });
+};
+
+const checkSnapshotFolder = (context, node, snapshotFolderPath, snapshotFolderName) => {
+  const snapshotFolderExists = existsSync(snapshotFolderPath);
+
+  if (!snapshotFolderExists) {
+    context.report({
+      node,
+      messageId: 'missingSnapshotFolder',
+      data: { snapshotFolder: snapshotFolderName },
+    });
+    return false;
+  }
+
+  let isDirectory = false;
+  try {
+    isDirectory = statSync(snapshotFolderPath).isDirectory();
+  } catch {
+    context.report({
+      node,
+      messageId: 'missingSnapshotFolder',
+      data: { snapshotFolder: snapshotFolderName },
+    });
+    return false;
+  }
+
+  if (!isDirectory) {
+    context.report({
+      node,
+      messageId: 'missingSnapshotFolder',
+      data: { snapshotFolder: snapshotFolderName },
+    });
+    return false;
+  }
+
+  return true;
+};
+
+const checkPngFiles = (context, node, snapshotFolderPath, snapshotFolderName) => {
+  let files = [];
+  try {
+    files = readdirSync(snapshotFolderPath);
+  } catch {
+    context.report({
+      node,
+      messageId: 'missingPngFiles',
+      data: { snapshotFolder: snapshotFolderName },
+    });
+    return;
+  }
+
+  const pngFiles = files.filter((file) => file.toLowerCase().endsWith('.png'));
+
+  if (pngFiles.length === 0) {
+    context.report({
+      node,
+      messageId: 'missingPngFiles',
+      data: { snapshotFolder: snapshotFolderName },
+    });
+  }
+};
 
 const rule = {
   meta: {
@@ -27,9 +99,7 @@ const rule = {
         properties: {
           excludePatterns: {
             type: 'array',
-            items: {
-              type: 'string',
-            },
+            items: { type: 'string' },
             description: 'Array of glob patterns to exclude from visual snapshot requirement',
           },
         },
@@ -41,12 +111,8 @@ const rule = {
   create(context) {
     const options = context.options[0] || {};
     const excludePatterns = options.excludePatterns || [
-      '**/*.spec.jsx',
-      '**/*.spec.tsx',
-      '**/*.test.jsx',
-      '**/*.test.tsx',
-      '**/index.jsx',
-      '**/index.tsx',
+      '**/*.spec.jsx', '**/*.spec.tsx', '**/*.test.jsx', '**/*.test.tsx',
+      '**/index.jsx', '**/index.tsx',
     ];
 
     return {
@@ -60,24 +126,11 @@ const rule = {
         } else if (filename.endsWith('.tsx')) {
           fileExtension = '.tsx';
         } else {
-          // Not a JSX/TSX file, skip
           return;
         }
 
         // Check exclude patterns
-        const shouldExclude = excludePatterns.some((pattern) => {
-          if (pattern.includes('**/*.')) {
-            const extension = pattern.split('**/').pop().replace('*', '');
-            return filename.endsWith(extension || '');
-          }
-          if (pattern.includes('**/')) {
-            const suffix = pattern.replace('**/', '');
-            return filename.endsWith(`/${suffix}`) || filename.endsWith(`\\${suffix}`);
-          }
-          return filename.includes(pattern);
-        });
-
-        if (shouldExclude) {
+        if (checkExcludePatterns(filename, excludePatterns)) {
           return;
         }
 
@@ -86,92 +139,21 @@ const rule = {
         const specFilePath = joinPath(parsed.dir, specFileName);
 
         // Check if spec file exists
-         
-        const specFileExists = existsSync(specFilePath);
-
-        if (!specFileExists) {
+        if (!existsSync(specFilePath)) {
           context.report({
             node,
             messageId: 'missingSpecFile',
-            data: {
-              specFile: specFileName,
-            },
+            data: { specFile: specFileName },
           });
           return;
         }
 
-        // Determine snapshot folder name: <spec-file-name>-snapshots
+        // Check snapshot folder and PNG files
         const snapshotFolderName = `${parsed.name}.spec-snapshots`;
         const snapshotFolderPath = joinPath(parsed.dir, snapshotFolderName);
 
-        // Check if snapshot folder exists
-         
-        const snapshotFolderExists = existsSync(snapshotFolderPath);
-
-        if (!snapshotFolderExists) {
-          context.report({
-            node,
-            messageId: 'missingSnapshotFolder',
-            data: {
-              snapshotFolder: snapshotFolderName,
-            },
-          });
-          return;
-        }
-
-        // Check if snapshot folder is actually a directory
-        let isDirectory = false;
-        try {
-           
-          isDirectory = statSync(snapshotFolderPath).isDirectory();
-        } catch {
-          context.report({
-            node,
-            messageId: 'missingSnapshotFolder',
-            data: {
-              snapshotFolder: snapshotFolderName,
-            },
-          });
-          return;
-        }
-
-        if (!isDirectory) {
-          context.report({
-            node,
-            messageId: 'missingSnapshotFolder',
-            data: {
-              snapshotFolder: snapshotFolderName,
-            },
-          });
-          return;
-        }
-
-        // Check if folder contains at least one PNG file
-        let files = [];
-        try {
-           
-          files = readdirSync(snapshotFolderPath);
-        } catch {
-          context.report({
-            node,
-            messageId: 'missingPngFiles',
-            data: {
-              snapshotFolder: snapshotFolderName,
-            },
-          });
-          return;
-        }
-
-        const pngFiles = files.filter((file) => file.toLowerCase().endsWith('.png'));
-
-        if (pngFiles.length === 0) {
-          context.report({
-            node,
-            messageId: 'missingPngFiles',
-            data: {
-              snapshotFolder: snapshotFolderName,
-            },
-          });
+        if (checkSnapshotFolder(context, node, snapshotFolderPath, snapshotFolderName)) {
+          checkPngFiles(context, node, snapshotFolderPath, snapshotFolderName);
         }
       },
     };

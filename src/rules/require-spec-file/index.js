@@ -1,5 +1,3 @@
-/* eslint-disable max-lines */
-/* eslint-disable max-lines-per-function */
 import { existsSync } from 'fs';
 import { parse as parsePath, join as joinPath } from 'path';
 
@@ -33,11 +31,111 @@ const hasLogicInNode = (node) => {
   return false;
 };
 
+const isSpecFile = (filename) => {
+  return filename.includes('.spec.js') ||
+    filename.includes('.spec.ts') ||
+    filename.includes('.test.js') ||
+    filename.includes('.test.ts');
+};
+
+const checkExcludePatterns = (filename, excludePatterns) => {
+  return excludePatterns.some((pattern) => {
+    if (pattern.includes('**/*.')) {
+      const extension = pattern.split('**/').pop().replace('*', '');
+      return filename.endsWith(extension || '');
+    }
+    if (pattern.includes('**/')) {
+      const suffix = pattern.replace('**/', '');
+      return filename.endsWith(`/${suffix}`) || filename.endsWith(`\\${suffix}`);
+    }
+    return filename.includes(pattern);
+  });
+};
+
+const validateSpecFile = (context, node, filename) => {
+  const parsed = parsePath(filename);
+
+  // Disallow index.spec.* files
+  if (parsed.name === 'index.spec' || parsed.name === 'index.test') {
+    context.report({
+      node,
+      messageId: 'indexSpecNotAllowed',
+    });
+    return;
+  }
+
+  // Determine the implementation file name
+  let implFileName = null;
+  let implFileExt = null;
+
+  if (parsed.name.endsWith('.spec')) {
+    implFileName = parsed.name.replace(/\.spec$/, '');
+    implFileExt = parsed.ext;
+  } else if (parsed.name.endsWith('.test')) {
+    implFileName = parsed.name.replace(/\.test$/, '');
+    implFileExt = parsed.ext;
+  }
+
+  if (implFileName && implFileExt) {
+    const implFilePath = joinPath(parsed.dir, `${implFileName}${implFileExt}`);
+    const implFileExists = existsSync(implFilePath);
+
+    if (!implFileExists) {
+      context.report({
+        node,
+        messageId: 'missingImplementationFile',
+        data: {
+          specFile: `${parsed.name}${parsed.ext}`,
+          implFile: `${implFileName}${implFileExt}`,
+        },
+      });
+    }
+  }
+};
+
+const validateImplementationFile = (context, node, filename, hasLogic, excludePatterns) => {
+  // Determine file extension
+  let fileExtension = null;
+  if (filename.endsWith('.js')) {
+    fileExtension = '.js';
+  } else if (filename.endsWith('.ts') && !filename.endsWith('.d.ts')) {
+    fileExtension = '.ts';
+  } else {
+    return;
+  }
+
+  // Check exclude patterns
+  if (checkExcludePatterns(filename, excludePatterns)) {
+    return;
+  }
+
+  // Skip files without logic
+  if (!hasLogic) {
+    return;
+  }
+
+  // Check for spec file
+  const parsed = parsePath(filename);
+  const specFileName = `${parsed.name}.spec${fileExtension}`;
+  const specFilePath = joinPath(parsed.dir, specFileName);
+  const specFileExists = existsSync(specFilePath);
+
+  if (!specFileExists) {
+    context.report({
+      node,
+      messageId: 'missingSpecFile',
+      data: {
+        specFile: specFileName,
+      },
+    });
+  }
+};
+
 const rule = {
   meta: {
     type: 'problem',
     docs: {
-      description: 'Require a spec file to exist alongside each JS/TS file with logic, and ensure spec files have corresponding implementation files',
+      description: 'Require spec file alongside JS/TS files with logic; ensure specs match implementations',
       category: 'Best Practices',
       recommended: true,
       url: '',
@@ -53,9 +151,7 @@ const rule = {
         properties: {
           excludePatterns: {
             type: 'array',
-            items: {
-              type: 'string',
-            },
+            items: { type: 'string' },
             description: 'Array of glob patterns to exclude from spec file requirement',
           },
         },
@@ -67,141 +163,26 @@ const rule = {
   create(context) {
     const options = context.options[0] || {};
     const excludePatterns = options.excludePatterns || [
-      '**/*.spec.js',
-      '**/*.spec.ts',
-      '**/*.test.js',
-      '**/*.test.ts',
-      '**/index.js',
-      '**/index.ts',
-      '**/*.d.ts',
+      '**/*.spec.js', '**/*.spec.ts', '**/*.test.js', '**/*.test.ts',
+      '**/index.js', '**/index.ts', '**/*.d.ts',
     ];
 
     let hasLogic = false;
 
     return {
-      FunctionDeclaration(node) {
-        if (hasLogicInNode(node)) hasLogic = true;
-      },
-      FunctionExpression(node) {
-        if (hasLogicInNode(node)) hasLogic = true;
-      },
-      ArrowFunctionExpression(node) {
-        if (hasLogicInNode(node)) hasLogic = true;
-      },
-      ClassDeclaration(node) {
-        if (hasLogicInNode(node)) hasLogic = true;
-      },
-      ClassExpression(node) {
-        if (hasLogicInNode(node)) hasLogic = true;
-      },
+      FunctionDeclaration(node) { if (hasLogicInNode(node)) hasLogic = true; },
+      FunctionExpression(node) { if (hasLogicInNode(node)) hasLogic = true; },
+      ArrowFunctionExpression(node) { if (hasLogicInNode(node)) hasLogic = true; },
+      ClassDeclaration(node) { if (hasLogicInNode(node)) hasLogic = true; },
+      ClassExpression(node) { if (hasLogicInNode(node)) hasLogic = true; },
 
       'Program:exit'(node) {
         const filename = context.getFilename ? context.getFilename() : context.filename;
 
-        // Check if this is a spec file
-        const isSpecFile =
-          filename.includes('.spec.js') ||
-          filename.includes('.spec.ts') ||
-          filename.includes('.test.js') ||
-          filename.includes('.test.ts');
-
-        if (isSpecFile) {
-          // Validate spec file
-          const parsed = parsePath(filename);
-
-          // Disallow index.spec.* files
-          if (parsed.name === 'index.spec' || parsed.name === 'index.test') {
-            context.report({
-              node,
-              messageId: 'indexSpecNotAllowed',
-            });
-            return;
-          }
-
-          // Determine the implementation file name
-          let implFileName = null;
-          let implFileExt = null;
-
-          if (parsed.name.endsWith('.spec')) {
-            implFileName = parsed.name.replace(/\.spec$/, '');
-            implFileExt = parsed.ext; // .js or .ts
-          } else if (parsed.name.endsWith('.test')) {
-            implFileName = parsed.name.replace(/\.test$/, '');
-            implFileExt = parsed.ext; // .js or .ts
-          }
-
-          if (implFileName && implFileExt) {
-            const implFilePath = joinPath(parsed.dir, `${implFileName}${implFileExt}`);
-
-            const implFileExists = existsSync(implFilePath);
-
-            if (!implFileExists) {
-              context.report({
-                node,
-                messageId: 'missingImplementationFile',
-                data: {
-                  specFile: `${parsed.name}${parsed.ext}`,
-                  implFile: `${implFileName}${implFileExt}`,
-                },
-              });
-            }
-          }
-
-          return;
-        }
-
-        // Not a spec file - check if implementation needs a spec file
-        // Determine file extension
-        let fileExtension = null;
-        if (filename.endsWith('.js')) {
-          fileExtension = '.js';
-        } else if (filename.endsWith('.ts') && !filename.endsWith('.d.ts')) {
-          fileExtension = '.ts';
+        if (isSpecFile(filename)) {
+          validateSpecFile(context, node, filename);
         } else {
-          // Skip files that are not .js or .ts (or are .d.ts)
-          return;
-        }
-
-        // Check if file matches any exclude pattern using simple string matching
-        const shouldExclude = excludePatterns.some((pattern) => {
-          // Simple pattern matching for common cases
-          if (pattern.includes('**/*.')) {
-            // Handle patterns like **/*.spec.js
-            const extension = pattern.split('**/').pop().replace('*', '');
-            return filename.endsWith(extension || '');
-          }
-          if (pattern.includes('**/')) {
-            const suffix = pattern.replace('**/', '');
-            return filename.endsWith(`/${suffix}`) || filename.endsWith(`\\${suffix}`);
-          }
-          return filename.includes(pattern);
-        });
-
-        if (shouldExclude) {
-          return;
-        }
-
-        // Skip files that don't contain logic
-        if (!hasLogic) {
-          return;
-        }
-
-        // Determine expected spec file path based on file extension
-        const parsed = parsePath(filename);
-        const specFileName = `${parsed.name}.spec${fileExtension}`;
-        const specFilePath = joinPath(parsed.dir, specFileName);
-
-        // Check if spec file exists
-        const specFileExists = existsSync(specFilePath);
-
-        if (!specFileExists) {
-          context.report({
-            node,
-            messageId: 'missingSpecFile',
-            data: {
-              specFile: specFileName,
-            },
-          });
+          validateImplementationFile(context, node, filename, hasLogic, excludePatterns);
         }
       },
     };
