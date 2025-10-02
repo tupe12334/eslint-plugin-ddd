@@ -5,11 +5,12 @@ export default defineConfig({
     globals: true,
     environment: 'node',
     include: ['src/**/*.spec.{js,ts}'],
+    exclude: ['**/examples/**'],
     coverage: {
       provider: 'v8',
       reporter: ['text', 'json', 'html'],
       include: ['src/**/*.{js,ts}'],
-      exclude: ['src/**/*.d.ts', 'src/**/*.spec.{js,ts}'],
+      exclude: ['src/**/*.d.ts', 'src/**/*.spec.{js,ts}', '**/examples/**'],
     },
   },
 });
