@@ -42,7 +42,7 @@ describe('isReExport', () => {
   });
 
   it('should return true for ExportNamedDeclaration with source', () => {
-    expect(isReExport({ type: 'ExportNamedDeclaration', source: {} })).toBe(true);
+    expect(isReExport({ type: 'ExportNamedDeclaration', source: {} })).toBeTruthy();
   });
 
   it('should return true for type exports', () => {
