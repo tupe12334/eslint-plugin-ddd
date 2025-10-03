@@ -1,7 +1,7 @@
 import { RuleTester } from 'eslint';
 import { describe, it, beforeEach, vi } from 'vitest';
 import { existsSync } from 'fs';
-import rule from './index.js';
+import rule from './require-storybook-file.js';
 
 vi.mock('fs');
 

@@ -1,6 +1,6 @@
 import { RuleTester } from 'eslint';
 import { describe, it } from 'vitest';
-import rule from './index.js';
+import rule from './no-logic-in-index.js';
 
 const ruleTester = new RuleTester({
   languageOptions: {

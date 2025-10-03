@@ -25,6 +25,7 @@ export default [
             "**/*.config.ts",
             "**/index.js",
             "**/index.ts",
+            "**/helpers.js",
             "/examples/",
             ".release-it.js",
           ],
