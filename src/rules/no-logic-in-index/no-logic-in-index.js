@@ -4,7 +4,8 @@ const rule = {
   meta: {
     type: 'problem',
     docs: {
-      description: 'Disallow logic in index files - index files should only contain re-exports',
+      description:
+        'Disallow logic in index files - index files should only contain re-exports',
       category: 'Best Practices',
       recommended: true,
       url: '',
@@ -19,13 +20,15 @@ const rule = {
   create(context) {
     return {
       Program(node) {
-        const filename = context.getFilename ? context.getFilename() : context.filename;
+        const filename = context.getFilename
+          ? context.getFilename()
+          : context.filename;
 
         if (!isIndexFile(filename)) {
           return;
         }
 
-        node.body.forEach((statement) => checkStatement(context, statement));
+        node.body.forEach(statement => checkStatement(context, statement));
       },
     };
   },

@@ -11,9 +11,7 @@ describe('hasLogicInNode', () => {
     const node = {
       type: 'ClassDeclaration',
       body: {
-        body: [
-          { type: 'MethodDefinition', value: { body: {} } },
-        ],
+        body: [{ type: 'MethodDefinition', value: { body: {} } }],
       },
     };
     expect(hasLogicInNode(node)).toBe(true);
@@ -42,11 +40,15 @@ describe('isReExport', () => {
   });
 
   it('should return true for ExportNamedDeclaration with source', () => {
-    expect(isReExport({ type: 'ExportNamedDeclaration', source: {} })).toBeTruthy();
+    expect(
+      isReExport({ type: 'ExportNamedDeclaration', source: {} })
+    ).toBeTruthy();
   });
 
   it('should return true for type exports', () => {
-    expect(isReExport({ type: 'ExportNamedDeclaration', exportKind: 'type' })).toBe(true);
+    expect(
+      isReExport({ type: 'ExportNamedDeclaration', exportKind: 'type' })
+    ).toBe(true);
   });
 
   it('should return false for other statements', () => {

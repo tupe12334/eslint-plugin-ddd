@@ -51,7 +51,7 @@ describe('require-visual-snapshot', () => {
   });
 
   it('should require snapshot folder when spec exists', () => {
-    vi.mocked(existsSync).mockImplementation((path) => {
+    vi.mocked(existsSync).mockImplementation(path => {
       // Spec file exists, but snapshot folder doesn't
       if (path.includes('.spec.')) return true;
       if (path.includes('-snapshots')) return false;
@@ -104,7 +104,10 @@ describe('require-visual-snapshot', () => {
   it('should pass when all requirements are met', () => {
     vi.mocked(existsSync).mockReturnValue(true);
     vi.mocked(statSync).mockReturnValue({ isDirectory: () => true });
-    vi.mocked(readdirSync).mockReturnValue(['snapshot.png', 'other-snapshot.PNG']);
+    vi.mocked(readdirSync).mockReturnValue([
+      'snapshot.png',
+      'other-snapshot.PNG',
+    ]);
 
     ruleTester.run('require-visual-snapshot (valid)', rule, {
       valid: [

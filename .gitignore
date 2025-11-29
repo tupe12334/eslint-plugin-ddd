@@ -1,15 +1,45 @@
+# Dependencies
 node_modules/
+.pnp
+.pnp.js
+
+# Build output
 dist/
-*.log
-.DS_Store
+build/
+
+# Testing
 coverage/
-.idea/
+.nyc_output
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# IDE
 .vscode/
+.idea/
 *.swp
 *.swo
-.env
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
 
 # Claude Code temporary files
 .claude-container/
 .claude-revert-backup-*/
 eslint-report.json
+
+# Temporary files
+*.tmp
+.cache/

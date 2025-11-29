@@ -1,7 +1,11 @@
 /* eslint-disable security/detect-non-literal-fs-filename */
 import { existsSync } from 'fs';
 import { parse as parsePath, join as joinPath } from 'path';
-import { checkExcludePatterns, checkSnapshotFolder, checkPngFiles } from './helpers.js';
+import {
+  checkExcludePatterns,
+  checkSnapshotFolder,
+  checkPngFiles,
+} from './helpers.js';
 
 const rule = {
   meta: {
@@ -28,7 +32,8 @@ const rule = {
           excludePatterns: {
             type: 'array',
             items: { type: 'string' },
-            description: 'Array of glob patterns to exclude from visual snapshot requirement',
+            description:
+              'Array of glob patterns to exclude from visual snapshot requirement',
           },
         },
         additionalProperties: false,
@@ -39,13 +44,19 @@ const rule = {
   create(context) {
     const options = context.options[0] || {};
     const excludePatterns = options.excludePatterns || [
-      '**/*.spec.jsx', '**/*.spec.tsx', '**/*.test.jsx', '**/*.test.tsx',
-      '**/index.jsx', '**/index.tsx',
+      '**/*.spec.jsx',
+      '**/*.spec.tsx',
+      '**/*.test.jsx',
+      '**/*.test.tsx',
+      '**/index.jsx',
+      '**/index.tsx',
     ];
 
     return {
       Program(node) {
-        const filename = context.getFilename ? context.getFilename() : context.filename;
+        const filename = context.getFilename
+          ? context.getFilename()
+          : context.filename;
 
         let fileExtension = null;
         if (filename.endsWith('.jsx')) {
@@ -76,7 +87,14 @@ const rule = {
         const snapshotFolderName = `${parsed.name}.spec-snapshots`;
         const snapshotFolderPath = joinPath(parsed.dir, snapshotFolderName);
 
-        if (checkSnapshotFolder(context, node, snapshotFolderPath, snapshotFolderName)) {
+        if (
+          checkSnapshotFolder(
+            context,
+            node,
+            snapshotFolderPath,
+            snapshotFolderName
+          )
+        ) {
           checkPngFiles(context, node, snapshotFolderPath, snapshotFolderName);
         }
       },

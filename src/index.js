@@ -23,39 +23,48 @@ const plugin = {
     strict: {
       plugins: ['ddd'],
       rules: {
-        'ddd/require-spec-file': ['error', {
-          excludePatterns: [
-            '**/*.spec.js',
-            '**/*.spec.ts',
-            '**/*.test.js',
-            '**/*.test.ts',
-            '**/*.d.ts',
-          ],
-        }],
-        'ddd/require-storybook-file': ['error', {
-          excludePatterns: [
-            '**/*.stories.jsx',
-            '**/*.stories.tsx',
-            '**/*.stories.js',
-            '**/*.stories.ts',
-            '**/index.jsx',
-            '**/index.tsx',
-            '**/*.spec.jsx',
-            '**/*.spec.tsx',
-            '**/*.test.jsx',
-            '**/*.test.tsx',
-          ],
-        }],
-        'ddd/require-visual-snapshot': ['error', {
-          excludePatterns: [
-            '**/*.spec.jsx',
-            '**/*.spec.tsx',
-            '**/*.test.jsx',
-            '**/*.test.tsx',
-            '**/index.jsx',
-            '**/index.tsx',
-          ],
-        }],
+        'ddd/require-spec-file': [
+          'error',
+          {
+            excludePatterns: [
+              '**/*.spec.js',
+              '**/*.spec.ts',
+              '**/*.test.js',
+              '**/*.test.ts',
+              '**/*.d.ts',
+            ],
+          },
+        ],
+        'ddd/require-storybook-file': [
+          'error',
+          {
+            excludePatterns: [
+              '**/*.stories.jsx',
+              '**/*.stories.tsx',
+              '**/*.stories.js',
+              '**/*.stories.ts',
+              '**/index.jsx',
+              '**/index.tsx',
+              '**/*.spec.jsx',
+              '**/*.spec.tsx',
+              '**/*.test.jsx',
+              '**/*.test.tsx',
+            ],
+          },
+        ],
+        'ddd/require-visual-snapshot': [
+          'error',
+          {
+            excludePatterns: [
+              '**/*.spec.jsx',
+              '**/*.spec.tsx',
+              '**/*.test.jsx',
+              '**/*.test.tsx',
+              '**/index.jsx',
+              '**/index.tsx',
+            ],
+          },
+        ],
         'ddd/no-logic-in-index': 'error',
       },
     },

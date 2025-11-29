@@ -7,7 +7,8 @@ const rule = {
   meta: {
     type: 'problem',
     docs: {
-      description: 'Require a Storybook file to exist alongside each JSX/TSX component file',
+      description:
+        'Require a Storybook file to exist alongside each JSX/TSX component file',
       category: 'Best Practices',
       recommended: true,
       url: '',
@@ -23,7 +24,8 @@ const rule = {
           excludePatterns: {
             type: 'array',
             items: { type: 'string' },
-            description: 'Array of glob patterns to exclude from Storybook file requirement',
+            description:
+              'Array of glob patterns to exclude from Storybook file requirement',
           },
         },
         additionalProperties: false,
@@ -34,14 +36,23 @@ const rule = {
   create(context) {
     const options = context.options[0] || {};
     const excludePatterns = options.excludePatterns || [
-      '**/*.stories.jsx', '**/*.stories.tsx', '**/*.stories.js', '**/*.stories.ts',
-      '**/index.jsx', '**/index.tsx',
-      '**/*.spec.jsx', '**/*.spec.tsx', '**/*.test.jsx', '**/*.test.tsx',
+      '**/*.stories.jsx',
+      '**/*.stories.tsx',
+      '**/*.stories.js',
+      '**/*.stories.ts',
+      '**/index.jsx',
+      '**/index.tsx',
+      '**/*.spec.jsx',
+      '**/*.spec.tsx',
+      '**/*.test.jsx',
+      '**/*.test.tsx',
     ];
 
     return {
       Program(node) {
-        const filename = context.getFilename ? context.getFilename() : context.filename;
+        const filename = context.getFilename
+          ? context.getFilename()
+          : context.filename;
 
         let fileExtension = null;
         if (filename.endsWith('.jsx')) {

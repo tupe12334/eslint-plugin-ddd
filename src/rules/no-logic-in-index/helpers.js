@@ -1,11 +1,11 @@
 /* eslint-disable single-export/single-export */
-export const hasLogicInNode = (node) => {
+export const hasLogicInNode = node => {
   if (!node) return false;
 
   if (
     (node.type === 'FunctionDeclaration' ||
-     node.type === 'FunctionExpression' ||
-     node.type === 'ArrowFunctionExpression') &&
+      node.type === 'FunctionExpression' ||
+      node.type === 'ArrowFunctionExpression') &&
     node.body
   ) {
     return true;
@@ -13,28 +13,34 @@ export const hasLogicInNode = (node) => {
 
   if (node.type === 'ClassDeclaration' || node.type === 'ClassExpression') {
     return node.body.body.some(
-      (member) => member.type === 'MethodDefinition' && member.value && member.value.body
+      member =>
+        member.type === 'MethodDefinition' && member.value && member.value.body
     );
   }
 
   return false;
 };
 
-export const isIndexFile = (filename) => {
-  return filename.endsWith('/index.js') ||
+export const isIndexFile = filename => {
+  return (
+    filename.endsWith('/index.js') ||
     filename.endsWith('/index.ts') ||
     filename.endsWith('/index.jsx') ||
     filename.endsWith('/index.tsx') ||
     filename.endsWith('\\index.js') ||
     filename.endsWith('\\index.ts') ||
     filename.endsWith('\\index.jsx') ||
-    filename.endsWith('\\index.tsx');
+    filename.endsWith('\\index.tsx')
+  );
 };
 
-export const isReExport = (statement) => {
-  return statement.type === 'ExportAllDeclaration' ||
+export const isReExport = statement => {
+  return (
+    statement.type === 'ExportAllDeclaration' ||
     (statement.type === 'ExportNamedDeclaration' && statement.source) ||
-    (statement.type === 'ExportNamedDeclaration' && statement.exportKind === 'type');
+    (statement.type === 'ExportNamedDeclaration' &&
+      statement.exportKind === 'type')
+  );
 };
 
 export const checkStatement = (context, statement) => {
@@ -83,7 +89,7 @@ export const checkStatement = (context, statement) => {
   }
 
   if (statement.type === 'VariableDeclaration') {
-    statement.declarations.forEach((declarator) => {
+    statement.declarations.forEach(declarator => {
       if (declarator.init && hasLogicInNode(declarator.init)) {
         context.report({
           node: declarator,

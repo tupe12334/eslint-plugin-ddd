@@ -10,9 +10,17 @@
     "!src/**/examples/**"
   ],
   "scripts": {
-    "test": "vitest run --run",
-    "test:watch": "vitest",
+    "test": "vitest --run",
+    "test:watch": "vitest --watch",
+    "test:coverage": "vitest --coverage --run",
     "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "format": "prettier --write \"src/**/*.{js,ts,json,md}\" --ignore-path .prettierignore",
+    "format:check": "prettier --check \"src/**/*.{js,ts,json,md}\" --ignore-path .prettierignore",
+    "spell": "cspell lint '**/*.{js,ts,md,json}' --gitignore",
+    "spell:check": "cspell lint '**/*.{js,ts,md,json}' --gitignore",
+    "knip": "knip",
+    "prepare": "husky",
     "ci": "pnpm lint && pnpm test",
     "release": "release-it",
     "release:patch": "release-it patch --ci",
@@ -31,10 +39,18 @@
   "author": "",
   "license": "MIT",
   "devDependencies": {
+    "@commitlint/cli": "^19.0.0",
+    "@commitlint/config-conventional": "^19.0.0",
+    "@vitest/coverage-v8": "^1.0.0",
     "@vitest/ui": "^1.0.0",
+    "cspell": "^8.0.0",
     "dotenv": "^16.0.0",
     "eslint": "^9.0.0",
     "eslint-config-agent": "^1.0.0",
+    "husky": "^9.0.0",
+    "knip": "^5.0.0",
+    "lint-staged": "^15.0.0",
+    "prettier": "^3.0.0",
     "release-it": "^17.0.0",
     "vitest": "^1.0.0"
   },
@@ -42,6 +58,9 @@
     "eslint": ">=9.0.0"
   },
   "engines": {
-    "node": ">=16.0.0"
+    "node": ">=20.0.0"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }
