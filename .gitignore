@@ -8,3 +8,8 @@ coverage/
 *.swp
 *.swo
 .env
+
+# Claude Code temporary files
+.claude-container/
+.claude-revert-backup-*/
+eslint-report.json
