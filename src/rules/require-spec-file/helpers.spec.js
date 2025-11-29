@@ -67,6 +67,28 @@ describe('checkExcludePatterns', () => {
   it('should match files with simple pattern', () => {
     expect(checkExcludePatterns('/path/examples/file.js', ['/examples/'])).toBe(true);
   });
+
+  it('should match files inside directory with **/dirname/** pattern', () => {
+    expect(checkExcludePatterns('/src/errors/blocks-fetch-error.ts', ['**/errors/**'])).toBe(true);
+    expect(checkExcludePatterns('/path/to/errors/custom-error.js', ['**/errors/**'])).toBe(true);
+    expect(checkExcludePatterns('/project/exceptions/not-found.ts', ['**/exceptions/**'])).toBe(true);
+    expect(checkExcludePatterns('/src/services/user-service.ts', ['**/errors/**'])).toBe(false);
+  });
+
+  it('should handle Windows paths with directory patterns', () => {
+    expect(checkExcludePatterns('C:\\project\\src\\errors\\my-error.ts', ['**/errors/**'])).toBe(true);
+  });
+
+  it('should match files with brace expansion patterns', () => {
+    expect(checkExcludePatterns('/src/utils/helper-error.js', ['**/*-error.{js,ts}'])).toBe(true);
+    expect(checkExcludePatterns('/src/utils/helper-error.ts', ['**/*-error.{js,ts}'])).toBe(true);
+    expect(checkExcludePatterns('/src/utils/helper-error.tsx', ['**/*-error.{js,ts}'])).toBe(false);
+  });
+
+  it('should match files with dot notation error patterns', () => {
+    expect(checkExcludePatterns('/src/my-module.error.js', ['**/*.error.{js,ts}'])).toBe(true);
+    expect(checkExcludePatterns('/src/my-module.error.ts', ['**/*.error.{js,ts}'])).toBe(true);
+  });
 });
 
 describe('validateSpecFile', () => {

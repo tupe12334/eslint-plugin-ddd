@@ -3,117 +3,78 @@
 import { existsSync } from 'fs';
 import { parse as parsePath, join as joinPath } from 'path';
 
+const FUNC_TYPES = ['FunctionDeclaration', 'FunctionExpression', 'ArrowFunctionExpression'];
+const SIMPLE_BODIES = ['Literal', 'Identifier', 'ObjectExpression', 'ArrayExpression'];
+
 export const hasLogicInNode = (node) => {
   if (!node) return false;
-
-  if (
-    (node.type === 'FunctionDeclaration' ||
-     node.type === 'FunctionExpression' ||
-     node.type === 'ArrowFunctionExpression') &&
-    node.body
-  ) {
+  if (FUNC_TYPES.includes(node.type) && node.body) {
     if (node.type === 'ArrowFunctionExpression' && node.body.type !== 'BlockStatement') {
-      const bodyType = node.body.type;
-      return bodyType !== 'Literal' && bodyType !== 'Identifier' &&
-             bodyType !== 'ObjectExpression' && bodyType !== 'ArrayExpression';
+      return !SIMPLE_BODIES.includes(node.body.type);
     }
     return true;
   }
-
   if (node.type === 'ClassDeclaration' || node.type === 'ClassExpression') {
-    return node.body.body.some(
-      (member) => member.type === 'MethodDefinition' && member.value && member.value.body
-    );
+    return node.body.body.some((m) => m.type === 'MethodDefinition' && m.value && m.value.body);
   }
-
   return false;
 };
 
-export const isSpecFile = (filename) => {
-  return filename.includes('.spec.js') ||
-    filename.includes('.spec.ts') ||
-    filename.includes('.test.js') ||
-    filename.includes('.test.ts');
+export const isSpecFile = (filename) =>
+  ['.spec.js', '.spec.ts', '.test.js', '.test.ts'].some((ext) => filename.includes(ext));
+
+const checkSinglePattern = (filename, pattern) => {
+  if (pattern.startsWith('**/') && pattern.endsWith('/**')) {
+    return filename.includes(`/${pattern.slice(3, -3)}/`);
+  }
+  if (pattern.includes('**/')) {
+    const suffix = pattern.replace('**/', '');
+    if (suffix.startsWith('*')) return filename.endsWith(suffix.slice(1));
+    if (suffix.includes('*')) {
+      const basename = filename.split('/').pop();
+      return suffix.split('*').every((part) => basename.includes(part));
+    }
+    return filename.endsWith(`/${suffix}`);
+  }
+  return filename.includes(pattern);
 };
 
 export const checkExcludePatterns = (filename, excludePatterns) => {
+  const normalized = filename.replace(/\\/g, '/');
   return excludePatterns.some((pattern) => {
-    if (pattern.includes('**/*.')) {
-      const extension = pattern.split('**/').pop().replace('*', '');
-      return filename.endsWith(extension || '');
+    const braceMatch = pattern.match(/\{([^}]+)\}/);
+    if (braceMatch) {
+      return braceMatch[1].split(',').some((alt) =>
+        checkSinglePattern(normalized, pattern.replace(/\{[^}]+\}/, alt))
+      );
     }
-    if (pattern.includes('**/')) {
-      const suffix = pattern.replace('**/', '');
-      return filename.endsWith(`/${suffix}`) || filename.endsWith(`\\${suffix}`);
-    }
-    return filename.includes(pattern);
+    return checkSinglePattern(normalized, pattern);
   });
 };
 
 export const validateSpecFile = (context, node, filename) => {
   const parsed = parsePath(filename);
-
   if (parsed.name === 'index.spec' || parsed.name === 'index.test') {
-    context.report({ node, messageId: 'indexSpecNotAllowed' });
-    return;
+    return context.report({ node, messageId: 'indexSpecNotAllowed' });
   }
-
-  let implFileName = null;
-  let implFileExt = null;
-
-  if (parsed.name.endsWith('.spec')) {
-    implFileName = parsed.name.replace(/\.spec$/, '');
-    implFileExt = parsed.ext;
-  } else if (parsed.name.endsWith('.test')) {
-    implFileName = parsed.name.replace(/\.test$/, '');
-    implFileExt = parsed.ext;
-  }
-
-  if (implFileName && implFileExt) {
-    const implFilePath = joinPath(parsed.dir, `${implFileName}${implFileExt}`);
-    const implFileExists = existsSync(implFilePath);
-
-    if (!implFileExists) {
-      context.report({
-        node,
-        messageId: 'missingImplementationFile',
-        data: {
-          specFile: `${parsed.name}${parsed.ext}`,
-          implFile: `${implFileName}${implFileExt}`,
-        },
-      });
-    }
+  const isSpec = parsed.name.endsWith('.spec');
+  if (!isSpec && !parsed.name.endsWith('.test')) return;
+  const implFileName = parsed.name.slice(0, -5);
+  const implFilePath = joinPath(parsed.dir, `${implFileName}${parsed.ext}`);
+  if (!existsSync(implFilePath)) {
+    context.report({
+      node, messageId: 'missingImplementationFile',
+      data: { specFile: `${parsed.name}${parsed.ext}`, implFile: `${implFileName}${parsed.ext}` },
+    });
   }
 };
 
 export const validateImplementationFile = (context, node, filename, hasLogic, excludePatterns) => {
-  let fileExtension = null;
-  if (filename.endsWith('.js')) {
-    fileExtension = '.js';
-  } else if (filename.endsWith('.ts') && !filename.endsWith('.d.ts')) {
-    fileExtension = '.ts';
-  } else {
-    return;
-  }
-
-  if (checkExcludePatterns(filename, excludePatterns)) {
-    return;
-  }
-
-  if (!hasLogic) {
-    return;
-  }
-
+  const ext = filename.endsWith('.js') ? '.js' : (filename.endsWith('.ts') && !filename.endsWith('.d.ts')) ? '.ts' : null;
+  if (!ext || checkExcludePatterns(filename, excludePatterns) || !hasLogic) return;
   const parsed = parsePath(filename);
-  const specFileName = `${parsed.name}.spec${fileExtension}`;
-  const specFilePath = joinPath(parsed.dir, specFileName);
-  const specFileExists = existsSync(specFilePath);
-
-  if (!specFileExists) {
-    context.report({
-      node,
-      messageId: 'missingSpecFile',
-      data: { specFile: specFileName },
-    });
+  const specFileName = `${parsed.name}.spec${ext}`;
+  if (!existsSync(joinPath(parsed.dir, specFileName))) {
+    context.report({ node, messageId: 'missingSpecFile', data: { specFile: specFileName } });
   }
 };
